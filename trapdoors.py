@@ -1,9 +1,11 @@
 #!/usr/bin/python
-
 import numpy as np
 from Crypto.Util import *
+from gaussian import gauss_samp_1D
+
+
 if __name__ == "__main__":
-    print number.getPrime(2048)
+    pass
 
 
 def gen_trap(n,q,m):
@@ -21,3 +23,4 @@ def gen_trap(n,q,m):
     return A,R
 
 gen_trap(128,2053,4096)
+

@@ -7,7 +7,7 @@ from gaussian import gauss_samp_1D, test_1D_samp
 if __name__ == "__main__":
     pass
 
-
+# https://docs.google.com/document/d/1vqXmpGedS7U152H0F89yHwobM_jP47ipPs0vOiX6rMg/edit
 def gen_trap(n,q,m):
     k = int(np.ceil(np.log2(q)))
     m0=m-n*k
@@ -24,5 +24,22 @@ def gen_trap(n,q,m):
     R = np.concatenate((R,np.eye(n*k)),axis=0)
     return A,R
 
-gen_trap(128,2053,3000)
+def binary_decomp(A0,k):
+    m0 = len(A0[0])
+    W=np.zeros((1,m0))
+    for i in range(len(A0)):
+        nextrow=np.zeros((k,m0))
+        for j in range(m0):
+            nextrow[:,j] = [int(b) for b in np.binary_repr(A0[i,j],k)[::-1]]
+        W = np.concatenate((W,nextrow),axis=0)
+    return W[1:,:]
 
+def gen_basis(n, q, m, A, R):
+    k = int(np.ceil(np.log2(q)))
+    m0=m-n*k
+    M1 = np.concatenate((R,np.concatenate((np.eye(m0),np.zeros((n*k,m0))),axis=0)),axis=1)
+    Tg = np.diagflat(2*np.ones(k))+np.diagflat(-1*np.ones(k-1),-1)
+    A0 = -A[:,:m0]
+    W = binary_decomp(A0,k)
+    M2 = np.concatenate((np.concatenate((Tg,np.zeros((m0,n*k))),axis=0),np.concatenate((W,np.eye(m0)),axis=0)),axis=1)
+    return M1*M2

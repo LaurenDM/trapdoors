@@ -69,3 +69,6 @@ def gauss_samp(B, sigma, mean, n):
         current_center = current_center - zb
 
     return e
+
+if __name__ == "__main__":
+    pass

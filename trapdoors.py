@@ -3,10 +3,6 @@ import numpy as np
 from Crypto.Util import *
 from gaussian import gauss_samp_1D, test_1D_samp
 
-
-if __name__ == "__main__":
-    pass
-
 # https://docs.google.com/document/d/1vqXmpGedS7U152H0F89yHwobM_jP47ipPs0vOiX6rMg/edit
 def gen_trap(n,q,m):
     k = int(np.ceil(np.log2(q)))
@@ -43,3 +39,6 @@ def gen_basis(n, q, m, A, R):
     W = binary_decomp(A0,k)
     M2 = np.concatenate((np.concatenate((Tg,np.zeros((m0,n*k))),axis=0),np.concatenate((W,np.eye(m0)),axis=0)),axis=1)
     return M1*M2
+
+if __name__ == "__main__":
+    print gen_trap(32,2053,512)

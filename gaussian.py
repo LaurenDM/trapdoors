@@ -1,4 +1,4 @@
-from math import log, ceil, floor
+from numpy import log2, ceil, floor
 import numpy as np
 import random
 import matplotlib.pyplot as plt
@@ -28,7 +28,7 @@ def get_lookup_table(sigma, mean, n):
         return np.exp(-(x - mean)**2 / (2.0 * sigma**2)) / (sigma*np.sqrt(2*np.pi))
     if (sigma, mean, n) not in lookup_tables:
         table = {}
-        t = ceil(log(n, 2))
+        t = ceil(log2(n))
         for i in range(int(floor(mean-sigma*t)), int(ceil(mean+sigma*t + 1))):
             table[i] = rho(i)
         lookup_tables[(sigma, mean, n)] = table
@@ -38,7 +38,7 @@ def gauss_samp_1D(sigma, mean, n):
     density_table = get_lookup_table(sigma, mean, n)
     sigma = float(sigma)
     mean = float(mean)
-    t = ceil(log(n, 2))
+    t = ceil(log2(n))
     while True:
         x = np.random.randint(int(floor(mean-sigma*t)), int(ceil(mean+sigma*t + 1)))
         gaussian_density = density_table[x]

@@ -3,16 +3,16 @@ import gaussian
 import trapdoors
 import hashlib
 
-def hash_string(msg, m, q):
+def hash_string(msg, n, q):
     h = hashlib.sha256(msg).digest()
     h_list = map(ord, h)
     x = 0
     for i in range(len(h_list)):
-        x += 256**(i*q)*int(h_list[i])
+        x += (256**i)*int(h_list[i])
 
     hash_array = []
 
-    for j in range(m):
+    for j in range(n):
         hash_array.append(x % q)
         x /= q
 
@@ -28,7 +28,7 @@ class Signer:
 
     def sign(self, msg):
         c = hash_string(msg, self.m, self.q)
-        e = gaussian.gauss_samp(self.B, self.sigma, c, self.m, self.q)
+        e = gaussian.gauss_samp(self.B, self.sigma, c, self.n, self.q)
 
         return c,e
 
@@ -39,9 +39,9 @@ class Verifier:
 
     def verify(self, msg, sig):
         (n, m) = self.A.shape
-        h1 = hash_string(msg, m, self.q)
+        h1 = hash_string(msg, n, self.q)
 
-        h2 = np.mod( self.A*np.matrix(sig).T[0], self.q)
+        h2 = np.mod( np.array(self.A*np.matrix(sig).T).T[0], self.q)
 
         print "h1: ", h1
         print "h2: ", h2

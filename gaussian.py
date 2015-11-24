@@ -50,14 +50,14 @@ def gauss_samp_1D(sigma, mean, n):
             return x
 
 
-def gauss_samp(B, sigma, mean, m, q):
+def gauss_samp(B, sigma, mean, n, q):
     Bg = gramschmidt.gs(B)
     current_center =  mean
 
-    e = np.zeros(m)
+    e = np.zeros(n)
 
     # iterate i = n - 1 ... 0
-    for i in range(0,m)[::-1]:
+    for i in range(0,n)[::-1]:
 
         # get the i^th gram schmidt vector
         bg_i = np.array(Bg[:,i].T)[0]
@@ -65,10 +65,7 @@ def gauss_samp(B, sigma, mean, m, q):
         cp_i = np.dot(current_center.T, bg_i) / np.dot(bg_i, bg_i)
         sp_i = sigma/np.linalg.norm(bg_i)
 
-        print "s,c,m: ", sp_i, cp_i, m
-
-        #z_i = gauss_samp_1D(sp_i, cp_i, m)
-        z_i = 1
+        z_i = gauss_samp_1D(sp_i, cp_i, n)
 
         # get the i^th basis vector
         b_i = np.array(B[:,i].T)[0]

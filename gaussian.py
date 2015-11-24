@@ -2,6 +2,8 @@ from math import log, ceil, floor
 import numpy as np
 import random
 import matplotlib.pyplot as plt
+import gramschmidt
+
 def test_1D_samp():
     d = {}
     for i in xrange(100000):
@@ -43,3 +45,27 @@ def gauss_samp_1D(sigma, mean, n):
         coin_toss = random.uniform(0, 1)
         if coin_toss < gaussian_density:
             return x
+
+
+def gauss_samp(B, sigma, mean, n):
+    Bg = gs(B)
+
+    current_center =  mean
+
+    e = np.zeros()
+
+    # iterate i = n - 1 ... 0
+    for i in range(0,n)[::-1]:
+        bg_i = Bg[:,i]
+        cp_i = np.dot(current_center, bg_i) / np.dot(bg_i, bg_i)
+        sp_i = sigma[i]/np.linalg.norm(bg_i)
+        z_i = gauss_samp_1D(sp_i, cp_i, n)
+
+        b_i = B[:,i]
+        zb = np.mul(z_i, b_i)
+
+        e = np.add(e, zb)
+
+        current_center = current_center - zb
+
+    return e

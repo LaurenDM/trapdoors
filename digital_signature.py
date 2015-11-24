@@ -2,6 +2,7 @@ import numpy as np
 import gaussian
 import trapdoors
 import hashlib
+from numpy import log2
 
 def hash_string(msg, n, q):
     h = hashlib.sha256(msg).digest()
@@ -27,10 +28,18 @@ class Signer:
         self.q = q
 
     def sign(self, msg):
-        c = hash_string(msg, self.m, self.q)
-        e = gaussian.gauss_samp(self.B, self.sigma, c, self.n, self.q)
+        u = hash_string(msg, self.m, self.q)
 
-        return c,e
+        bin_dec = trapdoors.binary_decomp(np.matrix(u), int(log2(self.q)))
+
+        print "bd: ", bin_dec.shape
+
+        t = np.mod(self.R * bin_dec, self.q)
+        v = gaussian.gauss_samp(self.B, self.sigma, -1*t, self.n, self.q)
+
+        sig = t+v
+
+        return c,sig
 
 class Verifier:
     def __init__(self, A, q=2053):

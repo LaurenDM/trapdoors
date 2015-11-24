@@ -16,10 +16,10 @@ import hashlib
 # outputs H(m) \in Z^n_q
 def hash_message(m, n, q):
     h = hashlib.sha256(m).digest()
-
+    h_list = map(ord, h)
     x = 0
-    for i in range(len(h)):
-        x += (256**i)*h[i]
+    for i in range(len(h_list)):
+        x += (256**i)*int(h_list[i])
 
 
     hash_array = []
@@ -30,6 +30,7 @@ def hash_message(m, n, q):
     return np.array(hash_array)
 
 if __name__ == "__main__":
+    #print hash_message("hello world", 16, 2053)
     n,q,m = 8,2053,150
     sigma = 4.7
     A,R = trapdoors.gen_trap(n,q,m)

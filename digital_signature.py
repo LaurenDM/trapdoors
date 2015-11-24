@@ -13,17 +13,17 @@ import hashlib
 #         h = hashlib.sha256(m).hexdigest()
 
 
-# outputs H(m) \in Z^n_q
-def hash_message(m, n, q):
-    h = hashlib.sha256(m).digest()
+# outputs H(m) \in Z^m_q
+def hash_message(msg, m, q):
+    h = hashlib.sha256(msg).digest()
     h_list = map(ord, h)
     x = 0
     for i in range(len(h_list)):
-        x += (256**i)*int(h_list[i])
-
+        x += 256**(i*q)*int(h_list[i])
 
     hash_array = []
-    for j in range(n):
+
+    for j in range(m):
         hash_array.append(x%q)
         x /= q
 
@@ -39,10 +39,10 @@ if __name__ == "__main__":
     B = trapdoors.gen_basis(n, q, m, A, R)
 
     message = "hello world"
-    c = hash_message(message)
+    c = hash_message(message, m, q)
 
     print "mean vector: ", c
 
-    e = gaussian.gauss_samp(B, sigma, c, n)
+    e = gaussian.gauss_samp(B, sigma, c, m)
 
     print "signature: ", e

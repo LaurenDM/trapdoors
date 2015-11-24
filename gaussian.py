@@ -47,25 +47,29 @@ def gauss_samp_1D(sigma, mean, n):
             return x
 
 
-def gauss_samp(B, sigma, mean, n):
-    Bg = gs(B)
-
+def gauss_samp(B, sigma, mean, m):
+    Bg = gramschmidt.gs(B)
     current_center =  mean
 
-    e = np.zeros()
+    e = np.zeros(m)
 
     # iterate i = n - 1 ... 0
-    for i in range(0,n)[::-1]:
-        bg_i = Bg[:,i]
-        cp_i = np.dot(current_center, bg_i) / np.dot(bg_i, bg_i)
-        sp_i = sigma[i]/np.linalg.norm(bg_i)
-        z_i = gauss_samp_1D(sp_i, cp_i, n)
+    for i in range(0,m)[::-1]:
 
-        b_i = B[:,i]
-        zb = np.mul(z_i, b_i)
+        # get the i^th gram schmidt vector
+        bg_i = np.array(Bg[:,i].T)[0]
+
+        cp_i = np.dot(current_center.T, bg_i) / np.dot(bg_i, bg_i)
+        sp_i = sigma/np.linalg.norm(bg_i)
+
+        z_i = gauss_samp_1D(sp_i, cp_i, m)
+
+        # get the i^th basis vector
+        b_i = np.array(B[:,i].T)[0]
+
+        zb = z_i*b_i
 
         e = np.add(e, zb)
 
-        current_center = current_center - zb
-
+        current_center = np.subtract(current_center, zb)
     return e

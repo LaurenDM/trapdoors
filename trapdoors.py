@@ -16,29 +16,38 @@ def gen_trap(n,q,m):
     gsamp = lambda i,j: gauss_samp_1D(s,0,n)
     vgsamp = np.vectorize(gsamp)
     R = np.matrix(np.fromfunction(vgsamp, (m0,n*k), dtype=int))
-    A = np.concatenate((A0,G-A0*R),axis=1)
+    A = np.concatenate((A0,np.mod(G-A0*R,q)),axis=1)
     R = np.concatenate((R,np.eye(n*k)),axis=0)
     return A,R
 
 def binary_decomp(A0,k):
-    m0 = len(A0[0])
+    m0 = A0.shape[1]
     W=np.zeros((1,m0))
     for i in range(len(A0)):
         nextrow=np.zeros((k,m0))
         for j in range(m0):
             nextrow[:,j] = [int(b) for b in np.binary_repr(A0[i,j],k)[::-1]]
         W = np.concatenate((W,nextrow),axis=0)
-    return W[1:,:]
+    return W[1:]
+
+def trapdoor_G(n,k):
+    Tg = np.diagflat(2*np.ones(k))+np.diagflat(-1*np.ones(k-1),-1)
+    T = np.zeros((n*k,n*k), dtype=int)
+    for i in range(n):
+        T[i*k:(i+1)*k,i*k:(i+1)*k]=Tg
+    return T
 
 def gen_basis(n, q, m, A, R):
     k = int(np.ceil(np.log2(q)))
     m0=m-n*k
     M1 = np.concatenate((R,np.concatenate((np.eye(m0),np.zeros((n*k,m0))),axis=0)),axis=1)
-    Tg = np.diagflat(2*np.ones(k))+np.diagflat(-1*np.ones(k-1),-1)
-    A0 = -A[:,:m0]
+    Tg = trapdoor_G(n,k)
+    A0 = np.mod(-A[:,:m0],q)
     W = binary_decomp(A0,k)
     M2 = np.concatenate((np.concatenate((Tg,np.zeros((m0,n*k))),axis=0),np.concatenate((W,np.eye(m0)),axis=0)),axis=1)
-    return M1*M2
+    return np.mod(M1*M2,q)
 
 if __name__ == "__main__":
-    print gen_trap(32,2053,512)
+    A,R = gen_trap(32,2053,1024)
+    B = gen_basis(32,2053,1024,A,R)
+    print np.mod(A*B,2053)

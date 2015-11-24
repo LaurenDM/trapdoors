@@ -3,6 +3,7 @@ import numpy as np
 import random
 # import matplotlib.pyplot as plt
 import gramschmidt
+from Crypto.Util import *
 
 def test_1D_samp():
     d = {}
@@ -40,6 +41,8 @@ def gauss_samp_1D(sigma, mean, n):
     mean = float(mean)
     t = ceil(log2(n))
     while True:
+
+        #x = number.getRandomRange(int(floor(mean-sigma*t)), int(ceil(mean+sigma*t + 1)))
         x = np.random.randint(int(floor(mean-sigma*t)), int(ceil(mean+sigma*t + 1)))
         gaussian_density = density_table[x]
         coin_toss = random.uniform(0, 1)
@@ -47,7 +50,7 @@ def gauss_samp_1D(sigma, mean, n):
             return x
 
 
-def gauss_samp(B, sigma, mean, m):
+def gauss_samp(B, sigma, mean, m, q):
     Bg = gramschmidt.gs(B)
     current_center =  mean
 
@@ -62,14 +65,17 @@ def gauss_samp(B, sigma, mean, m):
         cp_i = np.dot(current_center.T, bg_i) / np.dot(bg_i, bg_i)
         sp_i = sigma/np.linalg.norm(bg_i)
 
-        z_i = gauss_samp_1D(sp_i, cp_i, m)
+        print "s,c,m: ", sp_i, cp_i, m
+
+        #z_i = gauss_samp_1D(sp_i, cp_i, m)
+        z_i = 1
 
         # get the i^th basis vector
         b_i = np.array(B[:,i].T)[0]
 
         zb = z_i*b_i
 
-        e = np.add(e, zb)
+        e = np.mod(np.add(e, zb), q)
 
-        current_center = np.subtract(current_center, zb)
+        current_center = np.mod(np.subtract(current_center, zb), q)
     return e

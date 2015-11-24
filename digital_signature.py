@@ -2,19 +2,8 @@ import numpy as np
 import gaussian
 import trapdoors
 import hashlib
-# class Signer:
-#     def __init__(self, n, m, sigma, q):
-#         self.A = np.zeros((n,m))
-#         self.R = np.zeros((m,m))
-#         self.sigma = sigma
-#         self.q = q
-#
-#     def sign(self, m):
-#         h = hashlib.sha256(m).hexdigest()
 
-
-# outputs H(m) \in Z^m_q
-def hash_message(msg, m, q):
+def hash_string(msg, m, q):
     h = hashlib.sha256(msg).digest()
     h_list = map(ord, h)
     x = 0
@@ -24,25 +13,49 @@ def hash_message(msg, m, q):
     hash_array = []
 
     for j in range(m):
-        hash_array.append(x%q)
+        hash_array.append(x % q)
         x /= q
 
     return np.array(hash_array)
 
+class Signer:
+    def __init__(self, n=8, m=150, sigma=4.7, q=2053):
+        self.n, self.m, self.q = n,m,q
+        self.A, self.R = trapdoors.gen_trap(n,q,m)
+        self.B = trapdoors.gen_basis(n, q, m, self.A, self.R)
+        self.sigma = sigma
+        self.q = q
+
+    def sign(self, msg):
+        c = hash_string(msg, self.m, self.q)
+        e = gaussian.gauss_samp(self.B, self.sigma, c, self.m, self.q)
+
+        return c,e
+
+class Verifier:
+    def __init__(self, A, q=2053):
+        self.A = A
+        self.q = q
+
+    def verify(self, msg, sig):
+        (n, m) = self.A.shape
+        h1 = hash_string(msg, m, self.q)
+
+        h2 = np.mod( self.A*np.matrix(sig).T, self.q)
+
+        print "h1: ", h1
+        print "h2: ", h2
+
+        return h1 == h2
+
 if __name__ == "__main__":
-    #print hash_message("hello world", 16, 2053)
-    n,q,m = 8,2053,150
-    sigma = 4.7
-    A,R = trapdoors.gen_trap(n,q,m)
+    signer = Signer()
 
-    print "generated trapdoor: ", R
-    B = trapdoors.gen_basis(n, q, m, A, R)
-
-    message = "hello world"
-    c = hash_message(message, m, q)
+    msg = "hello world"
+    c,e = signer.sign(msg)
 
     print "mean vector: ", c
-
-    e = gaussian.gauss_samp(B, sigma, c, m)
-
     print "signature: ", e
+
+    verifier = Verifier(signer.A)
+    print "verified: ", verifier.verify(msg, e)

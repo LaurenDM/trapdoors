@@ -41,7 +41,7 @@ class Verifier:
         (n, m) = self.A.shape
         h1 = hash_string(msg, m, self.q)
 
-        h2 = np.mod( self.A*np.matrix(sig).T, self.q)
+        h2 = np.mod( self.A*np.matrix(sig).T[0], self.q)
 
         print "h1: ", h1
         print "h2: ", h2

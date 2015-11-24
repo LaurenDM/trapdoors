@@ -1,7 +1,7 @@
 from numpy import log2, ceil, floor
 import numpy as np
 import random
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import gramschmidt
 
 def test_1D_samp():
@@ -18,8 +18,8 @@ def test_1D_samp():
     l.sort(key = lambda kv: kv[0])
     y = map(lambda kv: kv[1], l)
     x = map(lambda kv: kv[0], l)
-    plt.plot(x,y, 'go')
-    plt.show()
+    # plt.plot(x,y, 'go')
+    # plt.show()
 
 lookup_tables = {}
 
@@ -69,6 +69,3 @@ def gauss_samp(B, sigma, mean, n):
         current_center = current_center - zb
 
     return e
-
-if __name__ == "__main__":
-    pass

@@ -1,7 +1,7 @@
 import numpy as np
 
 # Gram-Schmidt Orthogonalization
-def gs(X, row_vecs=True, norm = True):
+def gs(X, row_vecs=True, norm = False):
     if not row_vecs:
         X = X.T
     Y = X[0:1,:].copy()

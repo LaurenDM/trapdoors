@@ -65,7 +65,7 @@ def gauss_samp(B, sigma, mean, n, q):
         cp_i = np.dot(current_center.T, bg_i) / np.dot(bg_i, bg_i)
         sp_i = sigma/np.linalg.norm(bg_i)
 
-        z_i = gauss_samp_1D(sp_i, cp_i, n)
+        z_i = gauss_samp_1D(sp_i, cp_i, n) % q
 
         # get the i^th basis vector
         b_i = np.array(B[:,i].T)[0]

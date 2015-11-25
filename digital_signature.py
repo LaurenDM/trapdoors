@@ -20,7 +20,7 @@ def hash_string(msg, n, q):
     return np.array(hash_array)
 
 class Signer:
-    def __init__(self, n=8, m=150, sigma=1000, q=2053):
+    def __init__(self, n=128, m=2400, sigma=1000, q=2053):
         self.n, self.m, self.q = n,m,q
         self.A, self.R = trapdoors.gen_trap(n,q,m)
         self.B = trapdoors.gen_basis(n, q, m, self.A, self.R)
@@ -50,6 +50,8 @@ class Verifier:
 
         h2 = np.mod( np.array(self.A*np.matrix(sig).T).T[0], self.q)
 
+        print "H1: ", h1
+        print "H2: ", h2
         # verify that h1 matches h2 everywhere
         return reduce(lambda x,y: x and y, (h1 == h2))
 

@@ -56,6 +56,9 @@ def gauss_samp(B, sigma, mean, n, q):
 
     e = np.zeros(n)
 
+    #print max([np.linalg.norm(np.array(Bg[:,i].T)[0]) for i in  range(n)])
+    print B
+    #print sigma
     # iterate i = n - 1 ... 0
     for i in range(0,n)[::-1]:
 
@@ -65,6 +68,7 @@ def gauss_samp(B, sigma, mean, n, q):
         cp_i = np.dot(current_center.T, bg_i) / np.dot(bg_i, bg_i)
         sp_i = sigma/np.linalg.norm(bg_i)
 
+        #print "s_i, c_i: ", sp_i, cp_i
         z_i = gauss_samp_1D(sp_i, cp_i, n) % q
 
         # get the i^th basis vector

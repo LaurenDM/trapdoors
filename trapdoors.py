@@ -2,6 +2,7 @@
 import numpy as np
 from Crypto.Util import *
 from gaussian import gauss_samp_1D, test_1D_samp
+import gramschmidt
 
 # https://docs.google.com/document/d/1vqXmpGedS7U152H0F89yHwobM_jP47ipPs0vOiX6rMg/edit
 def gen_trap(n,q,m):
@@ -52,3 +53,6 @@ if __name__ == "__main__":
     A,R = gen_trap(n,q,m)
     B = gen_basis(n,q,m,A,R)
     print np.amax(np.amax(np.mod(A*B,q)))
+
+    Bg = gramschmidt.gs(B)
+    print "Max Gram-Schmidt: ", max([np.linalg.norm(np.array(Bg[:,i].T)[0]) for i in  range(m)])

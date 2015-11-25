@@ -9,9 +9,7 @@ def gen_trap(n,q,m):
     m0=m-n*k
     A0 = np.matrix(np.random.randint(0,q,(n,m0)))
     g = [int(2**i) for i in range(k)]
-    G = np.zeros((n,n*k), dtype=int)
-    for i in range(n):
-        G[i,i*k:(i+1)*k]=g
+    G = np.kron(np.eye(n),g)
     s=4.7 #smoothing parameter of integer lattice for eps=2^(-100) = 4.7
     gsamp = lambda i,j: gauss_samp_1D(s,0,n)
     vgsamp = np.vectorize(gsamp)
@@ -30,24 +28,27 @@ def binary_decomp(A0,k):
         W = np.concatenate((W,nextrow),axis=0)
     return W[1:]
 
-def trapdoor_G(n,k):
+def trapdoor_G(n,q,k):
     Tg = np.diagflat(2*np.ones(k))+np.diagflat(-1*np.ones(k-1),-1)
-    T = np.zeros((n*k,n*k), dtype=int)
-    for i in range(n):
-        T[i*k:(i+1)*k,i*k:(i+1)*k]=Tg
+    Tg[:,-1] = [int(b) for b in np.binary_repr(q,k)[::-1]]
+    T = np.kron(np.eye(n),Tg)
     return T
 
 def gen_basis(n, q, m, A, R):
     k = int(np.ceil(np.log2(q)))
     m0=m-n*k
-    M1 = np.concatenate((R,np.concatenate((np.eye(m0),np.zeros((n*k,m0))),axis=0)),axis=1)
-    Tg = trapdoor_G(n,k)
+    M1 = np.concatenate((np.concatenate((np.eye(m0),np.zeros((n*k,m0))),axis=0),R),axis=1)
+    Tg = trapdoor_G(n,q,k)
     A0 = np.mod(-A[:,:m0],q)
     W = binary_decomp(A0,k)
-    M2 = np.concatenate((np.concatenate((Tg,np.zeros((m0,n*k))),axis=0),np.concatenate((W,np.eye(m0)),axis=0)),axis=1)
+    M2 = np.concatenate((np.concatenate((np.eye(m0),W),axis=0),np.concatenate((np.zeros((m0,n*k)),Tg),axis=0)),axis=1)
     return np.mod(M1*M2,q)
 
 if __name__ == "__main__":
-    A,R = gen_trap(32,2053,1024)
-    B = gen_basis(32,2053,1024,A,R)
-    print np.mod(A*B,2053)
+    n=32
+    q=2053
+    k=int(np.ceil(np.log2(q)))
+    m=2*n*k
+    A,R = gen_trap(n,q,m)
+    B = gen_basis(n,q,m,A,R)
+    print np.amax(np.amax(np.mod(A*B,q)))

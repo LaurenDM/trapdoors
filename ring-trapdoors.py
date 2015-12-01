@@ -3,13 +3,19 @@ from Crypto.Util import *
 from gaussian import gauss_samp_1D, test_1D_samp
 import gramschmidt
 
-def poly_mult(A,p):
+# General comment: each row in a matrix = coefficients of 1 polynomial
+# Matrix = 'vector' of polynomials
+
+def A_mult(q,A,p):
     kp2,n = A.shape
     u=np.zeros(n)
     for i in range(kp2):
-        rota = np.matrix([np.roll(np.array(A[i])[0],j) for j in range(n)])
-        u = u + np.dot(p[i],rota)
-    return u
+        u = u + poly_mult(q,np.array(A[i])[0],p[i])
+    return np.mod(u,q)
+
+def poly_mult(q,p1,p2):
+    rotp1 = np.matrix([np.roll(p1,j) for j in range(n)])
+    return np.mod(np.dot(p2,rotp1),q)
 
 def gen_trap(n,q):
     k = int(np.ceil(np.log2(q)))
@@ -20,23 +26,34 @@ def gen_trap(n,q):
     R = np.matrix(np.fromfunction(vgsamp, (k,n), dtype=int))
     E = np.matrix(np.fromfunction(vgsamp, (k,n), dtype=int))
     g = [int(2**i) for i in range(k)]
+    one = np.zeros(n)
+    one[0]=1
     rota1=np.matrix([np.roll(a1,i) for i in range(n)])
-    A1 = np.vstack([np.array(g[i] - (np.dot(R[i],rota1) +E[i])) for i in range(k)])
+    A1 = np.vstack([np.array(g[i]*one - (np.dot(R[i],rota1) +E[i])) for i in range(k)])
     one = np.zeros(n)
     one[0]=1
     A0 = np.vstack((np.matrix(one),np.matrix(a1)))
     A = np.vstack((A0,A1))
-    return A,R,E
+    return np.mod(A,q),R,E
+
+def sample_g(n,k,u):
+    X = np.zeros((k,n))
+    for i in range(len(u)):
+        X[:,i]=[int(b) for b in np.binary_repr(u[i],k)[::-1]]
+    return X
+
+def combine_sample(r,e,x):
+    p0 = np.vstack(( A_mult(q,e,x), A_mult(q,r,x) ))
+    return np.vstack((p0,x))
 
 if __name__ == "__main__":
-    n=16
-    q=1024
+    n=128
+    q=2048
     k = int(np.ceil(np.log2(q)))
     A,r,e=gen_trap(n,q)
-    print A
-    print r
-    print e
-    ptest0 = np.vstack((e.sum(axis=0),r.sum(axis=0)))
-    ptest1 = np.concatenate((np.ones((k,1)),np.zeros((k,n-1))),axis=1)
-    ptest = np.vstack((ptest0,ptest1))
-    print poly_mult(A,ptest)
+    u = np.array(np.random.randint(0,q,n))
+    x = sample_g(n,k,u)
+    z = combine_sample(r,e,x)
+    #p = combine_sample(r,e,np.hstack((np.ones((k,1)),np.zeros((k,n-1)))))
+    testresult = A_mult(q,A,z)
+    print np.mod(testresult-u,q)

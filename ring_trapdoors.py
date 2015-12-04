@@ -20,12 +20,8 @@ def A_mult(q,A,p):
     kp2,n = A.shape
     u=np.zeros(n)
     for i in range(kp2):
-        u = u + poly_mult(q,np.array(A[i])[0],p[i])
+        u = u + np.mod(np.dot(Rot(A[i]),p[i].T),q)
     return np.mod(u,q)
-
-def poly_mult(q,p1,p2):
-    rotp1 = np.matrix([np.roll(p1,j) for j in range(n)])
-    return np.mod(np.dot(p2,rotp1),q)
 
 def gen_trap(n,q):
     k = int(np.ceil(np.log2(q)))
@@ -38,8 +34,8 @@ def gen_trap(n,q):
     g = [int(2**i) for i in range(k)]
     one = np.zeros(n)
     one[0]=1
-    rota1=np.matrix([np.roll(a1,i) for i in range(n)])
-    A1 = np.vstack([np.array(g[i]*one - (np.dot(R[i],rota1) +E[i])) for i in range(k)])
+    rota1=Rot(np.matrix(a1))
+    A1 = np.vstack([np.array(g[i]*one - (np.dot(rota1,R[i].T) +E[i])) for i in range(k)])
     one = np.zeros(n)
     one[0]=1
     A0 = np.vstack((np.matrix(one),np.matrix(a1)))
@@ -57,16 +53,14 @@ def combine_sample(r,e,x):
     return np.vstack((p0,x))
 
 if __name__ == "__main__":
-    # n=128
-    # q=2048
-    # k = int(np.ceil(np.log2(q)))
-    # A,r,e=gen_trap(n,q)
-    # u = np.array(np.random.randint(0,q,n))
-    # x = sample_g(n,k,u)
-    # z = combine_sample(r,e,x)
-    # #p = combine_sample(r,e,np.hstack((np.ones((k,1)),np.zeros((k,n-1)))))
-    # testresult = A_mult(q,A,z)
-    # print np.mod(testresult-u,q)
-
-    a=np.matrix([[1,2,3,4,5]])
-    print Rot(a)
+    n=16
+    q=2048
+    k = int(np.ceil(np.log2(q)))
+    A,r,e=gen_trap(n,q)
+    u = np.array(np.random.randint(0,q,n))
+    x = sample_g(n,k,u)
+    z = combine_sample(r,e,x)
+    print z
+    #p = combine_sample(r,e,np.hstack((np.ones((k,1)),np.zeros((k,n-1)))))
+    testresult = A_mult(q,A,z)
+    print np.mod(testresult-u,q)

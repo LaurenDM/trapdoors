@@ -67,7 +67,7 @@ if __name__ == "__main__":
     msg = "hello world"
     e = signer.sign(msg)
 
-    print "\nsignature: ", e
+    print "\nsignature size: ", np.linalg.norm(e)
 
     verifier = Verifier(signer.A)
 

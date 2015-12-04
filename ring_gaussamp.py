@@ -31,21 +31,17 @@ def beta(x):
     return Rot(x)[1:]
 
 def preimage_sample_A(A, R, E, u, s, q):
-    print "A: " + str(np.shape(A))
-    print A
-    print "R:   " + str(np.shape(R))
-    w = np.shape(R)[1]
-    (n, mbar) = np.shape(A)
-    m = w + mbar
+    print R.shape
+    print E.shape
     Sigma = s**2
     SigmaG = 2
     SigmaP = Sigma - R * SigmaG * R.T
 
-    R1 = np.hstack([E[i:] for i in range(E.shape[0])])
-    R2 = np.hstack([R[i:] for i in range(R.shape[0])])
+    R1 = np.hstack([Rot(E[i]) for i in range(E.shape[0])])
+    R2 = np.hstack([Rot(R[i]) for i in range(R.shape[0])])
 
-    betaE = np.vstack([beta(E[i:]) for i in range(E.shape[0])])
-    betaR = np.vstack([beta(R[i:]) for i in range(R.shape[0])])
+    betaE = np.vstack([beta(E[i]) for i in range(E.shape[0])])
+    betaR = np.vstack([beta(R[i]) for i in range(R.shape[0])])
     COV = np.concatenate(
             [
             np.concatenate(
@@ -61,6 +57,7 @@ def preimage_sample_A(A, R, E, u, s, q):
                 axis=1
                 ),
             ], axis=1)
+    print COV
 
     #   perturbation: m = w+mbar ring elements
     p = SigmaP * np.vstack([ring_sample(s, 0, n) for i in range(m)])

@@ -2,6 +2,7 @@ import numpy as np
 from Crypto.Util import *
 from gaussian import gauss_samp_1D, test_1D_samp
 import gramschmidt
+from ring_gaussamp import *
 
 # General comment: each row in a matrix = coefficients of 1 polynomial
 # Matrix = 'vector' of polynomials
@@ -64,3 +65,4 @@ if __name__ == "__main__":
     #print A_mult(q,A,p)
     testresult = A_mult(q,A,z)
     print np.mod(testresult-u,q)
+    preimage_sample_A(A, r, e, u, 4.7, q)

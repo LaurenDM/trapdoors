@@ -30,18 +30,19 @@ def ring_sample(sigma, mean, n):
 def beta(x):
     return Rot(x)[0]
 
-def preimage_sample_A(A, R, E, u, s, q):
+def preimage_sample_A(A, R, E, u, s, q, r):
     print R.shape
     print E.shape
-    Sigma = s**2
-    SigmaG = 2
 
-    R1 = np.hstack([Rot(E[i]) for i in range(E.shape[0])])
-    R2 = np.hstack([Rot(R[i]) for i in range(R.shape[0])])
+    (kplus2, n) = A.shape
+    (k, n) = E.shape
 
-    betaE = np.vstack([beta(E[i]) for i in range(E.shape[0])])
-    betaR = np.vstack([beta(R[i]) for i in range(R.shape[0])])
-    COV = np.vstack(
+    R1 = np.hstack([Rot(E[i]) for i in range(k)])
+    R2 = np.hstack([Rot(R[i]) for i in range(k)])
+
+    betaE = np.vstack([beta(E[i]) for i in range(k)])
+    betaR = np.vstack([beta(R[i]) for i in range(k)])
+    COV = r**2*np.vstack(
             [
             np.hstack(
                 [Rot(np.matrix(A_mult(q, E, betaE))), Rot(np.matrix(A_mult(q, E, betaR))), R1]
@@ -55,11 +56,17 @@ def preimage_sample_A(A, R, E, u, s, q):
             ])
     print COV.shape
     R = np.vstack([R1, R2, np.eye(R1.shape[1])])
-    s1 = np.abs(np.linalg.svd(R)[1][0]) * 2
+    s = np.abs(np.linalg.svd(R)[1][0]) * r * 32
+    print s
 
-    SigmaP = s1**2*np.eye(COV.shape[0]) - COV
-    rootSigma = np.linalg.cholesky(SigmaP - .25*np.eye(SigmaP.shape[0]))
+    SigmaP = s**2*np.eye(COV.shape[0]) - COV
+    rootSigma = np.linalg.cholesky(SigmaP - (r/2)**2*np.eye(SigmaP.shape[0]))
 
     #   perturbation: m = w+mbar ring elements
-    p = rootSigma * np.matrix([np.random.normal(0, 1) for i in range(A.shape[0] * A.shape[1])]).T
+    p = rootSigma * np.matrix([np.random.normal(0, 1) for i in range(kplus2 * n)]).T
+    randomizedRound = np.vectorize(lambda x: gauss_samp_1D(r/2, x, n))
+    p = randomizedRound(p)
+
+    p = p.reshape(kplus2, n)
+    print p
 

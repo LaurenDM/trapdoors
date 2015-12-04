@@ -27,7 +27,7 @@ def A_mult(q,A,p):
 def gen_trap(n,q):
     k = int(np.ceil(np.log2(q)))
     a1 = np.array(np.random.randint(0,q,n))
-    s=6.6 #smoothing parameter of integer lattice for eps=2^(-200) = 6.6
+    s=4.7 #smoothing parameter of integer lattice for eps=2^(-200) = 6.6
     gsamp = lambda i,j: gauss_samp_1D(s,0,n)
     vgsamp = np.vectorize(gsamp)
     R = np.matrix(np.fromfunction(vgsamp, (k,n), dtype=int))
@@ -55,7 +55,7 @@ def combine_sample(r,e,x):
 
 if __name__ == "__main__":
     n=128
-    q=2048
+    q=2**19
     k = int(np.ceil(np.log2(q)))
     A,r,e=gen_trap(n,q)
     u = np.array(np.random.randint(0,q,n))
@@ -64,4 +64,4 @@ if __name__ == "__main__":
     #p = combine_sample(r,e,np.hstack((np.ones((k,1)),np.zeros((k,n-1)))))
     testresult = A_mult(q,A,z)
     print np.mod(testresult-u,q)
-    preimage_sample_A(A, r, e, u, 64, q)
+    preimage_sample_A(A, r, e, u, 64, q, 9.4)

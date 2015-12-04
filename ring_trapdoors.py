@@ -6,6 +6,16 @@ import gramschmidt
 # General comment: each row in a matrix = coefficients of 1 polynomial
 # Matrix = 'vector' of polynomials
 
+def Rot(a): # a must be a np.matrix
+    n = a.shape[1]
+    rot=np.zeros((n,n))
+    rot[:,0]=a
+    for i in range(1,n):
+        a=np.roll(a,1)
+        a[0,0]=-a[0,0]
+        rot[:,i]=a
+    return rot
+
 def A_mult(q,A,p):
     kp2,n = A.shape
     u=np.zeros(n)
@@ -47,13 +57,16 @@ def combine_sample(r,e,x):
     return np.vstack((p0,x))
 
 if __name__ == "__main__":
-    n=128
-    q=2048
-    k = int(np.ceil(np.log2(q)))
-    A,r,e=gen_trap(n,q)
-    u = np.array(np.random.randint(0,q,n))
-    x = sample_g(n,k,u)
-    z = combine_sample(r,e,x)
-    #p = combine_sample(r,e,np.hstack((np.ones((k,1)),np.zeros((k,n-1)))))
-    testresult = A_mult(q,A,z)
-    print np.mod(testresult-u,q)
+    # n=128
+    # q=2048
+    # k = int(np.ceil(np.log2(q)))
+    # A,r,e=gen_trap(n,q)
+    # u = np.array(np.random.randint(0,q,n))
+    # x = sample_g(n,k,u)
+    # z = combine_sample(r,e,x)
+    # #p = combine_sample(r,e,np.hstack((np.ones((k,1)),np.zeros((k,n-1)))))
+    # testresult = A_mult(q,A,z)
+    # print np.mod(testresult-u,q)
+
+    a=np.matrix([[1,2,3,4,5]])
+    print Rot(a)

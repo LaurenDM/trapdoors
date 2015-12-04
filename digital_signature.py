@@ -67,8 +67,8 @@ if __name__ == "__main__":
     msg = "hello world"
     e = signer.sign(msg)
 
-    #print "signature: ", e
+    print "\nsignature: ", e
 
     verifier = Verifier(signer.A)
 
-    print "verified: ", verifier.verify(msg, e)
+    print "\nverified: ", verifier.verify(msg, e)

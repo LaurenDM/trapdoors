@@ -64,4 +64,4 @@ if __name__ == "__main__":
     #p = combine_sample(r,e,np.hstack((np.ones((k,1)),np.zeros((k,n-1)))))
     testresult = A_mult(q,A,z)
     print np.mod(testresult-u,q)
-    preimage_sample_A(A, r, e, u, 4.7, q)
+    preimage_sample_A(A, r, e, u, 64, q)

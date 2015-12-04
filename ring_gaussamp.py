@@ -52,9 +52,6 @@ def get_rootSigma(A,R,E,s,q,r):
                 [R1.T, R2.T, np.eye(R1.shape[1])],
                 ),
             ])
-    R1R2 = np.vstack([R1, R2, np.eye(R1.shape[1])])
-    s = np.abs(np.linalg.svd(R1R2)[1][0]) * r * 32
-    print s
 
     SigmaP = s**2*np.eye(COV.shape[0]) - COV
     rootSigma = np.linalg.cholesky(SigmaP - (r/2)**2*np.eye(SigmaP.shape[0]))

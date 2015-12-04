@@ -22,12 +22,12 @@ def hash_string(msg, n, q):
     return np.array(hash_array)
 
 class Signer:
-    def __init__(self, n=128, sigma=1000, k=19):
-        self.n, self.m, self.q = n,m,q
-        self.A, self.R, self.E = ring_trapdoors.gen_trap(n,q,m)
+    def __init__(self, n=128, sigma=100000, k=19):
+        self.n, self.k, = n,k
+        self.q = 2**k
+        self.A, self.R, self.E = ring_trapdoors.gen_trap(n,self.q)
         #self.B = trapdoors.gen_basis(n, q, m, self.A, self.R)
         self.sigma = sigma
-        self.q = 2**k
 
     def sign(self, msg):
         u = hash_string(msg, self.n, self.q)
@@ -43,16 +43,16 @@ class Signer:
         return sig
 
 class Verifier:
-    def __init__(self, A, q=2053):
+    def __init__(self, A, k=19):
         self.A = A
-        self.q = q
+        self.q = 2**k
 
     def verify(self, msg, sig):
-        (n, m) = self.A.shape
+        n = self.A.shape[1]
 
         h1 = hash_string(msg, n, self.q)
 
-        h2 = np.mod( ring_trapdoors.A_mult(q,self.A,sig), self.q)
+        h2 = np.mod( ring_trapdoors.A_mult(self.q,self.A,sig), self.q)
 
         print "H1: ", h1
         print "H2: ", h2
@@ -60,7 +60,7 @@ class Verifier:
         return reduce(lambda x,y: x and y, (h1 == h2))
 
 if __name__ == "__main__":
-    signer = Signer()
+    signer = Signer(n=256)
 
     msg = "hello world"
     e = signer.sign(msg)

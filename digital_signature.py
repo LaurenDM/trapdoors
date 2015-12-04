@@ -22,7 +22,7 @@ def hash_string(msg, n, q):
     return np.array(hash_array)
 
 class Signer:
-    def __init__(self, n=128, sigma=1000, k=19):
+    def __init__(self, n=128, sigma=100000, k=19):
         self.n, self.k, = n,k
         self.q = 2**k
         self.A, self.R, self.E = ring_trapdoors.gen_trap(n,self.q)

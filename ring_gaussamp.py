@@ -31,7 +31,7 @@ def ring_sample(sigma, mean, n):
 def beta(x):
     return Rot(x)[0]
 
-def preimage_sample_A(A, R, E, u, s, q, r):
+def get_rootSigma(A,R,E,s,q,r):
     (kplus2, n) = A.shape
     (k, n) = E.shape
 
@@ -58,6 +58,11 @@ def preimage_sample_A(A, R, E, u, s, q, r):
 
     SigmaP = s**2*np.eye(COV.shape[0]) - COV
     rootSigma = np.linalg.cholesky(SigmaP - (r/2)**2*np.eye(SigmaP.shape[0]))
+    return rootSigma
+
+def preimage_sample_A(A,R,E,rootSigma, u, q, r):
+    (kplus2, n) = A.shape
+    k=kplus2-2
 
     #   perturbation: m = w+mbar ring elements
     p = rootSigma * np.matrix([np.random.normal(0, 1) for i in range(kplus2 * n)]).T

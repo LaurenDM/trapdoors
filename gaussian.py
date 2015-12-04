@@ -49,6 +49,17 @@ def gauss_samp_1D(sigma, mean, n):
         if coin_toss < gaussian_density:
             return x
 
+def gauss_samp_1D_even(sigma, mean, n):
+    while True:
+        x = gauss_samp_1D(sigma, mean, n)
+        if x % 2 == 0:
+            return x
+
+def gauss_samp_1D_odd(sigma, mean, n):
+    while True:
+        x = gauss_samp_1D(sigma, mean, n)
+        if x % 2 == 1:
+            return x
 
 def gauss_samp(B, sigma, mean, n, q):
     Bg = gramschmidt.gs(B)

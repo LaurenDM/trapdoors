@@ -62,7 +62,6 @@ if __name__ == "__main__":
     x = sample_g(n,k,u)
     z = combine_sample(r,e,x)
     #p = combine_sample(r,e,np.hstack((np.ones((k,1)),np.zeros((k,n-1)))))
-    #print A_mult(q,A,p)
     testresult = A_mult(q,A,z)
     print np.mod(testresult-u,q)
     preimage_sample_A(A, r, e, u, 4.7, q)

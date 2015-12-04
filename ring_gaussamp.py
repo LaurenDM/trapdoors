@@ -28,7 +28,7 @@ def ring_sample(sigma, mean, n):
     return np.matrix(x)
 
 def beta(x):
-    return Rot(x)[1:]
+    return Rot(x)[0]
 
 def preimage_sample_A(A, R, E, u, s, q):
     print R.shape
@@ -42,21 +42,18 @@ def preimage_sample_A(A, R, E, u, s, q):
 
     betaE = np.vstack([beta(E[i]) for i in range(E.shape[0])])
     betaR = np.vstack([beta(R[i]) for i in range(R.shape[0])])
-    COV = np.concatenate(
+    COV = np.vstack(
             [
-            np.concatenate(
-                [A_mult(q, E, betaE), A_mult(q, E, betaR), R1],
-                axis=1
+            np.hstack(
+                [Rot(np.matrix(A_mult(q, E, betaE))), Rot(np.matrix(A_mult(q, E, betaR))), R1]
                 ),
-            np.concatenate(
-                [A_mult(q, R, betaE), A_mult(q, R, betaR), R2],
-                axis=1
+            np.hstack(
+                [Rot(np.matrix(A_mult(q, R, betaE))), Rot(np.matrix(A_mult(q, R, betaR))), R2],
                 ),
-            np.concatenate(
-                [R1.T, R2.T, np.eye(R.shape[1])],
-                axis=1
+            np.hstack(
+                [R1.T, R2.T, np.eye(R1.shape[1])],
                 ),
-            ], axis=1)
+            ])
     print COV
 
     #   perturbation: m = w+mbar ring elements

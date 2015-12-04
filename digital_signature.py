@@ -25,7 +25,9 @@ class Signer:
     def __init__(self, n=128, sigma=100000, k=19):
         self.n, self.k, = n,k
         self.q = 2**k
+        self.r=9.4
         self.A, self.R, self.E = ring_trapdoors.gen_trap(n,self.q)
+        self.rootSigma = ring_gaussamp.get_rootSigma(self.A,self.R,self.E,sigma, self.q,self.r)
         #self.B = trapdoors.gen_basis(n, q, m, self.A, self.R)
         self.sigma = sigma
 
@@ -38,7 +40,7 @@ class Signer:
 
         #sig = t+v
 
-        sig = ring_gaussamp.preimage_sample_A(self.A,self.R,self.E,u,self.sigma,self.q,9.4)
+        sig = ring_gaussamp.preimage_sample_A(self.A,self.R,self.E,self.rootSigma, u,self.q,self.r)
 
         return sig
 

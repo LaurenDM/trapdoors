@@ -1,24 +1,25 @@
 import numpy as np
 from ring_trapdoors import *
-def preimage_sample_G_1D(k, u, s):
+from gaussian import *
+def preimage_sample_G_1D(k, u, s, n):
     x = []
     for i in range(k):
         if u % 2 == 0:
-            x_i = gauss_samp_1D_even()
+            x_i = gauss_samp_1D_even(s, u, n)
         else:
-            x_i = gauss_samp_1D_odd()
+            x_i = gauss_samp_1D_odd(s, u, n)
         x.append(x_i)
         u = (u-x_i) / 2
-    return np.matrix(x)
+    return np.array(x)
 
 
 #   k: log q
 #   u: target syndrome (ring element)
 #   s: sigma
 def ring_preimage_sample_G(k, u, s):
-    x = []
+    x = np.zeros((k, len(u)))
     for i in range(len(u)):
-        x.append(preimage_sample_G_1D(k, u[i], s))
+        x[:,i] = preimage_sample_G_1D(k, u[i], s, len(u))
     return x
 
 def ring_sample(sigma, mean, n):
@@ -31,9 +32,6 @@ def beta(x):
     return Rot(x)[0]
 
 def preimage_sample_A(A, R, E, u, s, q, r):
-    print R.shape
-    print E.shape
-
     (kplus2, n) = A.shape
     (k, n) = E.shape
 
@@ -54,7 +52,6 @@ def preimage_sample_A(A, R, E, u, s, q, r):
                 [R1.T, R2.T, np.eye(R1.shape[1])],
                 ),
             ])
-    print COV.shape
     R = np.vstack([R1, R2, np.eye(R1.shape[1])])
     s = np.abs(np.linalg.svd(R)[1][0]) * r * 32
     print s
@@ -68,5 +65,9 @@ def preimage_sample_A(A, R, E, u, s, q, r):
     p = randomizedRound(p)
 
     p = p.reshape(kplus2, n)
-    print p
 
+    v = A_mult(q, A, np.array(p))
+    preimage = ring_preimage_sample_G(k, u-v, r)
+    print preimage.shape
+    print type(preimage)
+    return p + combine_sample(q, R, E, preimage)

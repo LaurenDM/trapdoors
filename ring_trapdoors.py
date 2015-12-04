@@ -49,7 +49,7 @@ def sample_g(n,k,u):
         X[:,i]=[int(b) for b in np.binary_repr(u[i],k)[::-1]]
     return X
 
-def combine_sample(r,e,x):
+def combine_sample(q, r,e,x):
     p0 = np.vstack(( A_mult(q,e,x), A_mult(q,r,x) ))
     return np.vstack((p0,x))
 
@@ -60,7 +60,7 @@ if __name__ == "__main__":
     A,r,e=gen_trap(n,q)
     u = np.array(np.random.randint(0,q,n))
     x = sample_g(n,k,u)
-    z = combine_sample(r,e,x)
+    z = combine_sample(q, r,e,x)
     #p = combine_sample(r,e,np.hstack((np.ones((k,1)),np.zeros((k,n-1)))))
     testresult = A_mult(q,A,z)
     print np.mod(testresult-u,q)

@@ -43,12 +43,12 @@ class Signer:
         return sig
 
 class Verifier:
-    def __init__(self, A, q=2053):
+    def __init__(self, A, k=19):
         self.A = A
-        self.q = q
+        self.q = 2**k
 
     def verify(self, msg, sig):
-        (n, m) = self.A.shape
+        n = self.A.shape[1]
 
         h1 = hash_string(msg, n, self.q)
 
@@ -60,7 +60,7 @@ class Verifier:
         return reduce(lambda x,y: x and y, (h1 == h2))
 
 if __name__ == "__main__":
-    signer = Signer()
+    signer = Signer(n=256)
 
     msg = "hello world"
     e = signer.sign(msg)

@@ -1,8 +1,8 @@
 import numpy as np
 from ring_trapdoors import *
-def preimage_sample_G_1D(m, u, s):
+def preimage_sample_G_1D(k, u, s):
     x = []
-    for i in range(m):
+    for i in range(k):
         if u % 2 == 0:
             x_i = gauss_samp_1D_even()
         else:
@@ -12,13 +12,13 @@ def preimage_sample_G_1D(m, u, s):
     return np.matrix(x)
 
 
-#   m: sample count
+#   k: log q
 #   u: target syndrome (ring element)
 #   s: sigma
-def ring_preimage_sample_G(m, u, s):
+def ring_preimage_sample_G(k, u, s):
     x = []
     for i in range(len(u)):
-        x.append(preimage_sample_G(m, u[i], s))
+        x.append(preimage_sample_G_1D(k, u[i], s))
     return x
 
 def ring_sample(sigma, mean, n):
@@ -40,4 +40,3 @@ def preimage_sample_A(A_0, R, u, s):
 
     #   perturbation: m = w+mbar ring elements
     p = SigmaP * np.vstack([ring_sample(s, 0, n) for i in range(m)])
-

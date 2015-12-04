@@ -52,8 +52,8 @@ def preimage_sample_A(A, R, E, u, s, q, r):
                 [R1.T, R2.T, np.eye(R1.shape[1])],
                 ),
             ])
-    R = np.vstack([R1, R2, np.eye(R1.shape[1])])
-    s = np.abs(np.linalg.svd(R)[1][0]) * r * 32
+    R1R2 = np.vstack([R1, R2, np.eye(R1.shape[1])])
+    s = np.abs(np.linalg.svd(R1R2)[1][0]) * r * 32
     print s
 
     SigmaP = s**2*np.eye(COV.shape[0]) - COV
@@ -64,10 +64,8 @@ def preimage_sample_A(A, R, E, u, s, q, r):
     randomizedRound = np.vectorize(lambda x: gauss_samp_1D(r/2, x, n))
     p = randomizedRound(p)
 
-    p = p.reshape(kplus2, n)
+    p = np.array(p.reshape(kplus2, n))
 
-    v = A_mult(q, A, np.array(p))
+    v = A_mult(q, A, p)
     preimage = ring_preimage_sample_G(k, u-v, r)
-    print preimage.shape
-    print type(preimage)
     return p + combine_sample(q, R, E, preimage)

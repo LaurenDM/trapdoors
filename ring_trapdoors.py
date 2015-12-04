@@ -35,7 +35,7 @@ def gen_trap(n,q):
     one = np.zeros(n)
     one[0]=1
     rota1=Rot(np.matrix(a1))
-    A1 = np.vstack([np.array(g[i]*one - (np.dot(rota1,R[i].T) +E[i])) for i in range(k)])
+    A1 = np.vstack([np.array(g[i]*one - (np.dot(rota1,R[i].T).T +E[i])) for i in range(k)])
     one = np.zeros(n)
     one[0]=1
     A0 = np.vstack((np.matrix(one),np.matrix(a1)))
@@ -53,14 +53,14 @@ def combine_sample(r,e,x):
     return np.vstack((p0,x))
 
 if __name__ == "__main__":
-    n=16
+    n=128
     q=2048
     k = int(np.ceil(np.log2(q)))
     A,r,e=gen_trap(n,q)
     u = np.array(np.random.randint(0,q,n))
     x = sample_g(n,k,u)
     z = combine_sample(r,e,x)
-    print z
     #p = combine_sample(r,e,np.hstack((np.ones((k,1)),np.zeros((k,n-1)))))
+    #print A_mult(q,A,p)
     testresult = A_mult(q,A,z)
     print np.mod(testresult-u,q)

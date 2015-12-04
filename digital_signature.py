@@ -1,6 +1,8 @@
 import numpy as np
 import gaussian
+import ring_gaussamp
 import trapdoors
+import ring_trapdoors
 import hashlib
 from numpy import log2, ceil
 
@@ -20,21 +22,23 @@ def hash_string(msg, n, q):
     return np.array(hash_array)
 
 class Signer:
-    def __init__(self, n=128, m=2400, sigma=1000, q=2053):
+    def __init__(self, n=128, sigma=1000, k=19):
         self.n, self.m, self.q = n,m,q
-        self.A, self.R = trapdoors.gen_trap(n,q,m)
-        self.B = trapdoors.gen_basis(n, q, m, self.A, self.R)
+        self.A, self.R, self.E = ring_trapdoors.gen_trap(n,q,m)
+        #self.B = trapdoors.gen_basis(n, q, m, self.A, self.R)
         self.sigma = sigma
-        self.q = q
+        self.q = 2**k
 
     def sign(self, msg):
         u = hash_string(msg, self.n, self.q)
 
-        bin_dec = trapdoors.binary_decomp(np.matrix(u).T, int(ceil(log2(self.q))))
-        t = np.array(np.mod(self.R * bin_dec, self.q).T)[0]
-        v = gaussian.gauss_samp(self.B, self.sigma, -1*t, self.m, self.q)
+        #bin_dec = trapdoors.binary_decomp(np.matrix(u).T, int(ceil(log2(self.q))))
+        #t = np.array(np.mod(self.R * bin_dec, self.q).T)[0]
+        #v = gaussian.gauss_samp(self.B, self.sigma, -1*t, self.m, self.q)
 
-        sig = t+v
+        #sig = t+v
+
+        sig = ring_gaussamp.preimage_sample_A(self.A,self.R,self.E,u,self.sigma,self.q,9.4)
 
         return sig
 
@@ -48,7 +52,7 @@ class Verifier:
 
         h1 = hash_string(msg, n, self.q)
 
-        h2 = np.mod( np.array(self.A*np.matrix(sig).T).T[0], self.q)
+        h2 = np.mod( ring_trapdoors.A_mult(q,self.A,sig), self.q)
 
         print "H1: ", h1
         print "H2: ", h2

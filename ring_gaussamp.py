@@ -35,7 +35,6 @@ def preimage_sample_A(A, R, E, u, s, q):
     print E.shape
     Sigma = s**2
     SigmaG = 2
-    SigmaP = Sigma - R * SigmaG * R.T
 
     R1 = np.hstack([Rot(E[i]) for i in range(E.shape[0])])
     R2 = np.hstack([Rot(R[i]) for i in range(R.shape[0])])
@@ -54,7 +53,11 @@ def preimage_sample_A(A, R, E, u, s, q):
                 [R1.T, R2.T, np.eye(R1.shape[1])],
                 ),
             ])
-    print COV
+    print COV.shape
+
+    SigmaP = s**2*np.eye(COV.shape[0]) - COV
+    RootSigmaP = np.linalg.cholesky(SigmaP)
 
     #   perturbation: m = w+mbar ring elements
-    p = SigmaP * np.vstack([ring_sample(s, 0, n) for i in range(m)])
+    p = SigmaP * np.matrix([gauss_samp_1D(sigma, 0, n) for i in range(A.shape[0] * A.shape[1])])
+

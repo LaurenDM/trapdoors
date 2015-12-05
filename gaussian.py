@@ -34,7 +34,7 @@ def get_lookup_table(sigma, mean, n):
             table[i] = rho(i)
         lookup_tables[(sigma, mean, n)] = table
     return lookup_tables[(sigma, mean, n)]
-
+@profile
 def gauss_samp_1D(sigma, mean, n):
     density_table = get_lookup_table(sigma, mean, n)
     sigma = float(sigma)

@@ -1,9 +1,0 @@
-README.rst
-cycler.py
-setup.cfg
-setup.py
-cycler.egg-info/PKG-INFO
-cycler.egg-info/SOURCES.txt
-cycler.egg-info/dependency_links.txt
-cycler.egg-info/requires.txt
-cycler.egg-info/top_level.txt

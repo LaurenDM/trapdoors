@@ -4,6 +4,7 @@ import random
 # import matplotlib.pyplot as plt
 import gramschmidt
 from Crypto.Util import *
+import math
 
 def test_1D_samp():
     d = {}
@@ -23,17 +24,20 @@ def test_1D_samp():
     # plt.show()
 
 lookup_tables = {}
-
 def get_lookup_table(sigma, mean, n):
-    def rho(x):
-        return np.exp(-(x - mean)**2 / (2.0 * sigma**2)) / (sigma*np.sqrt(2*np.pi))
+    global lookup_tables
     if (sigma, mean, n) not in lookup_tables:
         table = {}
         t = ceil(log2(n))
         for i in range(int(floor(mean-sigma*t)), int(ceil(mean+sigma*t + 1))):
-            table[i] = rho(i)
+            table[i] = rho(sigma, mean, n, i)
         lookup_tables[(sigma, mean, n)] = table
     return lookup_tables[(sigma, mean, n)]
+
+sqrt2pi = math.sqrt(2*math.pi)
+
+def rho(sigma, mean, n, x):
+    return math.exp(-(x - mean)**2 / (2 * sigma**2)) / (sigma*sqrt2pi)
 
 def gauss_samp_1D(sigma, mean, n):
     density_table = get_lookup_table(sigma, mean, n)

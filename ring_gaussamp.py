@@ -1,6 +1,8 @@
 import numpy as np
 from ring_trapdoors import *
 from gaussian import *
+from joblib import Parallel, delayed
+
 def preimage_sample_G_1D(k, u, s, n):
     x = []
     for i in range(k):
@@ -16,10 +18,13 @@ def preimage_sample_G_1D(k, u, s, n):
 #   k: log q
 #   u: target syndrome (ring element)
 #   s: sigma
+def process_input(k, u, s, i):
+    return preimage_sample_G_1D(k, u[i], s, len(u))
 def ring_preimage_sample_G(k, u, s):
     x = np.zeros((k, len(u)))
+    parallel_output = Parallel(n_jobs=8)(delayed(process_input)(k, u, s, i) for i in range(len(u)))
     for i in range(len(u)):
-        x[:,i] = preimage_sample_G_1D(k, u[i], s, len(u))
+        x[:,i] = parallel_output[i]
     return x
 
 def ring_sample(sigma, mean, n):

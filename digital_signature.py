@@ -31,6 +31,9 @@ class Signer:
         #self.B = trapdoors.gen_basis(n, q, m, self.A, self.R)
         self.sigma = sigma
 
+    def publicKey(self):
+        return (self.A, self.sigma, self.k)
+
     def sign(self, msg):
         u = hash_string(msg, self.n, self.q)
 
@@ -45,19 +48,33 @@ class Signer:
         return sig
 
 class Verifier:
-    def __init__(self, A, k=19):
+    def __init__(self, A, sigma, k):
         self.A = A
+        self.k = k
         self.q = 2**k
+        self.sigma = sigma
 
     def verify(self, msg, sig):
         n = self.A.shape[1]
 
-        h1 = hash_string(msg, n, self.q)
+        # verify sig is small enough
+        lengths = []
+        for i in range(sig.shape[0]):
+            lengths.append(np.linalg.norm(sig[i]))
+        maxLength = np.max(lengths)
 
+        # ensure that max norm vec of signature
+        # is small enough, smaller than sigma*n*\sqrt(k)
+        if  maxLength > self.sigma*n*np.sqrt(self.k):
+            print("Signature too long: ", maxLength)
+            print("Expecting signature smaller than ", self.sigma*n*np.sqrt(self.k))
+
+            return False
+
+        # generate the two hashes to compare
+        h1 = hash_string(msg, n, self.q)
         h2 = np.mod( ring_trapdoors.A_mult(self.q,self.A,sig), self.q)
 
-        print "H1: ", h1
-        print "H2: ", h2
         # verify that h1 matches h2 everywhere
         return reduce(lambda x,y: x and y, (h1 == h2))
 
@@ -67,8 +84,6 @@ if __name__ == "__main__":
     msg = "hello world"
     e = signer.sign(msg)
 
-    print "\nsignature size: ", np.linalg.norm(e)
-
-    verifier = Verifier(signer.A)
+    verifier = Verifier(*signer.publicKey())
 
     print "\nverified: ", verifier.verify(msg, e)

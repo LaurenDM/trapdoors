@@ -12,3 +12,17 @@ $ time lettuce gen --n=256 --pub=pub.key --priv=priv.key
 ##
 
 $ time lettuce sign --priv=priv.key --m="hello kevin, how are you?"
+
+
+##
+# Verify some message with the public key
+##
+
+$ time lettuce verify --pub=pub.key --sig=msg.sig --m="hello kevin, how are you?"
+
+
+##
+# Show invalid message fails
+##
+
+$ time lettuce verify --pub=pub.key --sig=msg.sig --m="hello kevin, blah blah blah" 

@@ -22,7 +22,7 @@ def gen(args):
     pubFile = args.pub or DEFUALT_VER_FILE
     privFile = args.priv or DEFUALT_SIG_FILE
 
-    signer = Signer(n=n)
+    signer = Signer(n=int(n))
 
     with open(pubFile, "w") as f:
         dumped = pickle.dumps(Verifier(*signer.publicKey()), 1)
@@ -73,7 +73,7 @@ def verify(args):
         if valid:
             print "Passed!"
         else:
-            print "Invalid!"
+            print "Error: Failed!"
 
     except:
         print "No valid verification key or signature file found."

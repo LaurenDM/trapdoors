@@ -1,3 +1,4 @@
+
 import numpy as np
 import gaussian
 import ring_gaussamp
@@ -5,6 +6,7 @@ import trapdoors
 import ring_trapdoors
 import hashlib
 from numpy import log2, ceil
+
 
 def hash_string(msg, n, q):
     h = hashlib.sha256(msg).digest()
@@ -31,6 +33,8 @@ class Signer:
         #self.B = trapdoors.gen_basis(n, q, m, self.A, self.R)
         self.sigma = sigma
 
+    def privateKey(self):
+        return (self.n, self.k, self.q, self.A, self.R, self.E, self.rootSigma, self.sigma)
     def publicKey(self):
         return (self.A, self.sigma, self.k)
 
@@ -77,13 +81,3 @@ class Verifier:
 
         # verify that h1 matches h2 everywhere
         return reduce(lambda x,y: x and y, (h1 == h2))
-
-if __name__ == "__main__":
-    signer = Signer(n=256)
-
-    msg = "hello world"
-    e = signer.sign(msg)
-
-    verifier = Verifier(*signer.publicKey())
-
-    print "\nverified: ", verifier.verify(msg, e)

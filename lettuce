@@ -1,0 +1,113 @@
+#!venv/bin/python
+
+from digital_signature import *
+
+############################
+#  Command Line Interface  #
+############################
+import pickle, sys, argparse, base64
+
+DEFUALT_VER_FILE = "ver.key"
+DEFUALT_SIG_FILE = "sig.key"
+DEFUALT_MSG_SIG_FILE = "msg.sig"
+
+def usage():
+    return "Usage: gen/sign/verify \n\t--n=256 \n\t--pub=ver.key \n\t--priv=sig.key \n\t--m=\"hello bob...\""
+    sys.exit(2)
+
+def gen(args):
+    n = args.n or 256
+    pubFile = args.pub or DEFUALT_VER_FILE
+    privFile = args.priv or DEFUALT_SIG_FILE
+
+    signer = Signer(n=n)
+
+    with open(pubFile, "w") as f:
+        dumped = pickle.dumps(Verifier(*signer.publicKey()), 1)
+        f.write(dumped)
+
+    with open(privFile, "w") as f:
+        dumped = pickle.dumps(signer, 1)
+        f.write(dumped)
+
+def sign(args):
+    privFile = args.priv or DEFUALT_SIG_FILE
+    msgSigFile = args.sig or DEFUALT_MSG_SIG_FILE
+
+    if args.m == None:
+        print "Missing message to sign. i.e: --m=..."
+        sys.exit(2)
+    try:
+        with open(privFile, "r") as f:
+            signer = pickle.loads(f.read())
+
+        sig = signer.sign(args.m)
+        dumpedSig = pickle.dumps(sig, 1)
+        sigb64 = base64.b64encode(dumpedSig)
+
+        with open(msgSigFile, "w") as f:
+            f.write(sigb64)
+
+        print "Done! Signature saved in ", msgSigFile
+
+    except:
+        print "No valid signing key found."
+
+def verify(args):
+    pubFile = args.pub or DEFUALT_VER_FILE
+    msgSigFile = args.sig or DEFUALT_MSG_SIG_FILE
+
+    if args.m == None:
+        print "Missing message to sign. i.e: --m=..."
+        sys.exit(2)
+    try:
+        with open(pubFile, "r") as f:
+            verifier = pickle.loads(f.read())
+
+        with open(msgSigFile, "r") as f:
+            sig = pickle.loads(base64.b64decode(f.read()))
+
+        valid = verifier.verify(args.m, sig)
+        if valid:
+            print "Passed!"
+        else:
+            print "Invalid!"
+
+    except:
+        print "No valid verification key or signature file found."
+
+if __name__ == "__main__":
+    # method
+    if len(sys.argv) < 2:
+        print usage()
+        sys.exit(2)
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("method", choices=["gen", "sign", "verify", "test"])
+
+    parser.add_argument("--n")
+    parser.add_argument("--pub")
+    parser.add_argument("--priv")
+
+    parser.add_argument("--sig")
+    parser.add_argument("--m")
+
+    args = parser.parse_args()
+
+    method = args.method
+
+    if method == "gen":
+        gen(args)
+    elif method == "sign":
+        sign(args)
+    elif method == "verify":
+        verify(args)
+    elif method == "test":
+        signer = Signer(n=256)
+
+        msg = "hello world"
+        e = signer.sign(msg)
+
+        verifier = Verifier(*signer.publicKey())
+
+        print "\nverified: ", verifier.verify(msg, e)

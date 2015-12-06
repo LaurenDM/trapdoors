@@ -1,1 +1,4 @@
 *.pyc
+*.sig
+*.key
+*.pyc

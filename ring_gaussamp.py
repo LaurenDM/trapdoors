@@ -22,7 +22,7 @@ def process_input(k, u, s, i):
     return preimage_sample_G_1D(k, u[i], s, len(u))
 def ring_preimage_sample_G(k, u, s):
     x = np.zeros((k, len(u)))
-    parallel_output = Parallel(n_jobs=8)(delayed(process_input)(k, u, s, i) for i in range(len(u)))
+    parallel_output = Parallel(n_jobs=16)(delayed(process_input)(k, u, s, i) for i in range(len(u)))
     for i in range(len(u)):
         x[:,i] = parallel_output[i]
     return x
@@ -62,14 +62,18 @@ def get_rootSigma(A,R,E,s,q,r):
     rootSigma = np.linalg.cholesky(SigmaP - (r/2)**2*np.eye(SigmaP.shape[0]))
     return rootSigma
 
+def normal(lo, hi):
+    return np.random.normal(lo, hi)
+
 def preimage_sample_A(A,R,E,rootSigma, u, q, r):
     (kplus2, n) = A.shape
     k=kplus2-2
 
+    floats = Parallel(n_jobs=16)(delayed(normal)(0,1) for i in range(kplus2 * n))
     #   perturbation: m = w+mbar ring elements
-    p = rootSigma * np.matrix([np.random.normal(0, 1) for i in range(kplus2 * n)]).T
-    randomizedRound = np.vectorize(lambda x: gauss_samp_1D(r/2, x, n))
-    p = randomizedRound(p)
+    p = rootSigma * np.matrix(floats).T
+    parallel_output = Parallel(n_jobs=16)(delayed(gauss_samp_1D)(r/2, np.asscalar(x), n) for x in np.nditer(p))
+    p = np.matrix(np.array(parallel_output))
 
     p = np.array(p.reshape(kplus2, n))
 

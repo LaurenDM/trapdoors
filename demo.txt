@@ -1,0 +1,14 @@
+Demo Script:
+
+##
+# Generate the pub/priv keys and time the process
+# n is the dimension off lattice,
+##
+
+$ time lettuce gen --n=256 --pub=pub.key --priv=priv.key
+
+##
+# Sign some message with the private key
+##
+
+$ time lettuce sign --priv=priv.key --m="hello kevin, how are you?"

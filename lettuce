@@ -42,18 +42,22 @@ def sign(args):
     try:
         with open(privFile, "r") as f:
             signer = pickle.loads(f.read())
-
-        sig = signer.sign(args.m)
-        dumpedSig = pickle.dumps(sig, 1)
-        sigb64 = base64.b64encode(dumpedSig)
-
-        with open(msgSigFile, "w") as f:
-            f.write(sigb64)
-
-        print "Done! Signature saved in ", msgSigFile
-
     except:
         print "No valid signing key found."
+        sys.exit(2)
+
+    sig = signer.sign(args.m)
+    dumpedSig = pickle.dumps(sig, 1)
+    sigb64 = base64.b64encode(dumpedSig)
+
+    try:
+        with open(msgSigFile, "w") as f:
+            f.write(sigb64)
+    except:
+        print "Could not write signature to ", msgSigFile
+        sys.exit(2)
+
+    print "Done! Signature saved in ", msgSigFile
 
 def verify(args):
     pubFile = args.pub or DEFUALT_VER_FILE
@@ -62,21 +66,28 @@ def verify(args):
     if args.m == None:
         print "Missing message to sign. i.e: --m=..."
         sys.exit(2)
+
+    # open public key verifier
     try:
         with open(pubFile, "r") as f:
             verifier = pickle.loads(f.read())
-
-        with open(msgSigFile, "r") as f:
-            sig = pickle.loads(base64.b64decode(f.read()))
-
-        valid = verifier.verify(args.m, sig)
-        if valid:
-            print "Passed!"
-        else:
-            print "Error: Failed!"
-
     except:
         print "No valid verification key or signature file found."
+        sys.exit(2)
+
+    # open signature
+    try:
+        with open(msgSigFile, "r") as f:
+            sig = pickle.loads(base64.b64decode(f.read()))
+    except:
+        print "No valid verification key or signature file found."
+        sys.exit(2)
+
+    valid = verifier.verify(args.m, sig)
+    if valid:
+        print "Passed!"
+    else:
+        print "Error: Failed!"
 
 if __name__ == "__main__":
     # method

@@ -12,7 +12,9 @@ DEFUALT_SIG_FILE = "sig.key"
 DEFUALT_MSG_SIG_FILE = "msg.sig"
 
 def usage():
-    return "Usage: gen/sign/verify \n\t--n=256 \n\t--pub=ver.key \n\t--priv=sig.key \n\t--m=\"hello bob...\""
+    return "Ring-SIS Lattice based trapdoor digital signature scheme \
+    \nMethods: gen,sign,verify \
+    \nOptions: --n=256, --pub=ver.key, --priv=sig.key, --m=\"hello bob...\", --sig=msg.sig"
     sys.exit(2)
 
 def gen(args):

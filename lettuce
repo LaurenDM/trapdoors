@@ -111,5 +111,8 @@ if __name__ == "__main__":
         e = signer.sign(msg)
 
         verifier = Verifier(*signer.publicKey())
-
-        print "\nverified: ", verifier.verify(msg, e)
+        valid = verifier.verify(msg, e)
+        if valid:
+            print "Tests Passed!"
+        else:
+            print "Failed Tests."

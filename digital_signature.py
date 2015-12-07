@@ -48,7 +48,7 @@ class Signer:
         #sig = t+v
 
         sig = ring_gaussamp.preimage_sample_A(self.A,self.R,self.E,self.rootSigma, u,self.q,self.r)
-
+        sig = np.mod(sig, self.q)
         return sig
 
 class Verifier:

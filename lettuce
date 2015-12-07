@@ -58,6 +58,7 @@ def sign(args):
         sys.exit(2)
 
     print "Done! Signature saved in ", msgSigFile
+    print "\033[93m", sig, "\033[00m"
 
 def verify(args):
     pubFile = args.pub or DEFUALT_VER_FILE

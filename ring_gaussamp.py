@@ -64,6 +64,9 @@ def get_rootSigma(A,R,E,s,q,r):
     rootSigma = np.linalg.cholesky(SigmaP - (r/2)**2*np.eye(SigmaP.shape[0]))
     return rootSigma
 
+def get_rootSigma_sis(A, R, s, q, r):
+    pass
+
 def normal(mean, sigma):
     return np.random.normal(mean, sigma)
 

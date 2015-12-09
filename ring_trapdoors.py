@@ -17,6 +17,7 @@ def Rot(a): # a must be a np.matrix
         rot[:,i]=a
     return rot
 
+#   component-wise polynomial multiplication
 def A_mult(q,A,p):
     kp2,n = A.shape
     u=np.zeros(n)
@@ -24,7 +25,16 @@ def A_mult(q,A,p):
         u = u + np.mod(np.dot(Rot(A[i]),p[i].T),q)
     return np.mod(u,q)
 
-def gen_trap(n,q):
+#   sum_i A[i] \cdot r
+def R_mult(q, A, r):
+    kp2,n = A.shape
+    u=np.zeros(n)
+    for i in range(kp2):
+        u = u + np.mod(np.dot(Rot(A[i]),r.T),q)
+    return np.mod(u,q)
+
+
+def gen_trap_lwe(n,q):
     k = int(np.ceil(np.log2(q)))
     a1 = np.array(np.random.randint(0,q,n))
     s=4.7 #smoothing parameter of integer lattice for eps=2^(-200) = 6.6
@@ -43,6 +53,22 @@ def gen_trap(n,q):
     A = np.vstack((A0,A1))
     return np.mod(A,q),R,E
 
+def gen_trap_sis(n, mbar, q):
+    k = int(np.ceil(1 + np.log2(q)))
+    a = np.matrix(np.array(np.random.randint(0,q,n*mbar))).reshape(mbar, n)
+    s=4.7 #smoothing parameter of integer lattice for eps=2^(-200) = 6.6
+    gsamp = lambda i,j: gauss_samp_1D(s,0,n)
+    vgsamp = np.vectorize(gsamp)
+    R = np.array(np.fromfunction(vgsamp, (k*mbar,n), dtype=int))
+    g = [int(2**i) for i in range(k)]
+    one = np.zeros(n)
+    one[0]=1
+    A1 = np.vstack([np.array(g[i]*one - A_mult(q, a, R[i*mbar:(i+1)*mbar]).T) for i in range(k)])
+    one = np.zeros(n)
+    one[0]=1
+    A = np.vstack((one, a,A1))
+    return np.mod(A,q),R
+
 def sample_g(n,k,u):
     X = np.zeros((k,n))
     for i in range(len(u)):
@@ -54,16 +80,13 @@ def combine_sample(q, r,e,x):
     return np.vstack((p0,x))
 
 if __name__ == "__main__":
-    n=128
-    q=2**19
+    n=8
+    q=2**8
     k = int(np.ceil(np.log2(q)))
-    A,r,e=gen_trap(n,q)
+    mbar = int(np.ceil(np.log2(n)))
+    A,r=gen_trap_sis(n, mbar, q)
     u = np.array(np.random.randint(0,q,n))
-    x = sample_g(n,k,u)
-    z = combine_sample(q, r,e,x)
-    #p = combine_sample(r,e,np.hstack((np.ones((k,1)),np.zeros((k,n-1)))))
-    testresult = A_mult(q,A,z)
-    print np.mod(testresult-u,q)
-    rootSigma = get_rootSigma(A,r,e,64,q,9.4)
-    preimage = preimage_sample_A(A, r, e, rootSigma, u, q, 9.4)
-    print np.mod(A_mult(q, A, preimage) - u, q)
+    print np.mod(A, q), r
+    # rootSigma = get_rootSigma(A,r,e,64,q,9.4)
+    # preimage = preimage_sample_A(A, r, e, rootSigma, u, q, 9.4)
+    # print np.mod(A_mult(q, A, preimage) - u, q)

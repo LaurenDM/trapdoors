@@ -62,8 +62,8 @@ def get_rootSigma(A,R,E,s,q,r):
     rootSigma = np.linalg.cholesky(SigmaP - (r/2)**2*np.eye(SigmaP.shape[0]))
     return rootSigma
 
-def normal(lo, hi):
-    return np.random.normal(lo, hi)
+def normal(mean, sigma):
+    return np.random.normal(mean, sigma)
 
 def preimage_sample_A(A,R,E,rootSigma, u, q, r):
     (kplus2, n) = A.shape

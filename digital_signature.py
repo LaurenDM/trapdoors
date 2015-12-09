@@ -28,7 +28,7 @@ class Signer:
         self.n, self.k, = n,k
         self.q = 2**k
         self.r=9.4
-        self.A, self.R, self.E = ring_trapdoors.gen_trap(n,self.q)
+        self.A, self.R, self.E = ring_trapdoors.gen_trap_lwe(n,self.q)
         self.rootSigma = ring_gaussamp.get_rootSigma(self.A,self.R,self.E,sigma, self.q,self.r)
         #self.B = trapdoors.gen_basis(n, q, m, self.A, self.R)
         self.sigma = sigma

@@ -63,7 +63,19 @@ def get_rootSigma(A,R,E,s,q,r):
     return rootSigma
 
 def get_rootSigma_sis(A, R, s, q, r):
-    pass
+    k = int(np.ceil(np.log2(q)))
+    (mbarplusk, n) = A.shape
+    mbar = mbarplusk - k
+
+    RK = np.vstack([
+        np.hstack([Rot(np.matrix(R[j*k+i])) for i in range(k)])
+        for j in range(mbar)])
+    COVLeft = np.matrix(np.vstack((RK, np.eye(n*k))))
+    COV = r**2*COVLeft * COVLeft.T
+    SigmaP = s**2*np.eye(COV.shape[0]) - COV
+    rootSigma = np.linalg.cholesky(SigmaP - (r/2)**2*np.eye(SigmaP.shape[0]))
+    return rootSigma
+
 
 def normal(mean, sigma):
     return np.random.normal(mean, sigma)
@@ -83,3 +95,22 @@ def preimage_sample_A(A,R,E,rootSigma, u, q, r):
     v = A_mult(q, A, p)
     preimage = ring_preimage_sample_G(k, u-v, r)
     return p + combine_sample(q, R, E, preimage)
+
+def preimage_sample_A_sis(A,R,rootSigma, u, q, r):
+    k = int(np.ceil(np.log2(q)))
+    (mbarplusk, n) = A.shape
+    mbar = mbarplusk - k
+
+    floats = Parallel(n_jobs=16)(delayed(normal)(0,1) for i in range((mbarplusk) * n))
+    p = rootSigma * np.matrix(floats).T
+    parallel_output = Parallel(n_jobs=16)(delayed(gauss_samp_1D)(r/2, np.asscalar(x), n) for x in np.nditer(p))
+    p = np.matrix(np.array(parallel_output))
+
+    p = np.array(p.reshape(mbarplusk, n))
+
+    v = A_mult(q, A, p)
+    z = ring_preimage_sample_G(k, u-v, r)
+    R=np.matrix(R)
+    Rz = np.vstack([A_mult(q, R[i::mbar], z) for i in range(mbar)])
+    zprime = np.vstack((Rz, z))
+    return p + zprime

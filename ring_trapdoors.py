@@ -54,7 +54,7 @@ def gen_trap_lwe(n,q):
     return np.mod(A,q),R,E
 
 def gen_trap_sis(n, mbar, q):
-    k = int(np.ceil(1 + np.log2(q)))
+    k = int(np.ceil(np.log2(q)))
     a = np.matrix(np.array(np.random.randint(0,q,n*mbar))).reshape(mbar, n)
     s=4.7 #smoothing parameter of integer lattice for eps=2^(-200) = 6.6
     gsamp = lambda i,j: gauss_samp_1D(s,0,n)
@@ -64,9 +64,7 @@ def gen_trap_sis(n, mbar, q):
     one = np.zeros(n)
     one[0]=1
     A1 = np.vstack([np.array(g[i]*one - A_mult(q, a, R[i*mbar:(i+1)*mbar]).T) for i in range(k)])
-    one = np.zeros(n)
-    one[0]=1
-    A = np.vstack((one, a,A1))
+    A = np.vstack((a,A1))
     return np.mod(A,q),R
 
 def sample_g(n,k,u):
@@ -80,13 +78,12 @@ def combine_sample(q, r,e,x):
     return np.vstack((p0,x))
 
 if __name__ == "__main__":
-    n=8
+    n=512
     q=2**8
     k = int(np.ceil(np.log2(q)))
     mbar = int(np.ceil(np.log2(n)))
     A,r=gen_trap_sis(n, mbar, q)
     u = np.array(np.random.randint(0,q,n))
-    print np.mod(A, q), r
-    # rootSigma = get_rootSigma(A,r,e,64,q,9.4)
-    # preimage = preimage_sample_A(A, r, e, rootSigma, u, q, 9.4)
-    # print np.mod(A_mult(q, A, preimage) - u, q)
+    rootSigma = get_rootSigma_sis(A,r,10000,q,2)
+    preimage = preimage_sample_A_sis(A, r, rootSigma, u, q, 2)
+    print np.mod(A_mult(q, A, preimage) - u, q)
